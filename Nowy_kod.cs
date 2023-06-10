@@ -20,16 +20,12 @@ public class FinancialReport
 
     public IEnumerable<Tuple<string, string, decimal>> GetMetrics()
     {
-        var data = FirstDatabase.GetData().Where(strategy.GetPredicate()).ToList();
-
-        return strategy.GetMetrics(data);
+        return strategy.GetMetrics(strategy.GetPredicate());
     }
 
     public IEnumerable<Tuple<decimal, string>> GetStatistics()
     {
-        var data = FirstDatabase.GetData().Where(strategy.GetPredicate()).ToList();
-
-        return strategy.GetStatistics(data);
+        return strategy.GetStatistics(strategy.GetPredicate());
     }
 }
 
@@ -76,7 +72,7 @@ public class FirstBankFinancialReportStrategy : IFinancialReportStrategy
 
 public class SecondBankFinancialReportStrategy : IFinancialReportStrategy
 {
-    public Func<Loan, bool> GetPredicate() => loan => loan.LoanStartDate.Year >= 2020 && loan.InterestRate <= 20;
+    public Func<Loan, bool> GetPredicate() => loan => loan.LoanStartDate.Year >= 2020 && loan.Account.Customer.IsActive && loan.InterestRate <= 20;
 
     public IEnumerable<Tuple<string, string, decimal>> GetMetrics(Func<Loan, bool> predicate)
     {
@@ -98,7 +94,7 @@ public class SecondBankFinancialReportStrategy : IFinancialReportStrategy
     {
         var data = SecondDatabase.GetData().Where(predicate).ToList();
 
-        return data.Select(l => new Tuple<decimal, string>(l.LoanAmount, $"{l.BankEmployee.EmployeeName.FirstName} {l.BankEmployee.EmployeeName.LastName}"));
+        return data.Select(l => new Tuple<decimal, string>(l.LoanAmount, $"{l.BankEmployee.EmployeeName}"));
     }
 
     private decimal CalculateAverageInterestRate(IEnumerable<Loan> loans, Func<Loan, bool> predicate = null)
