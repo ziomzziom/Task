@@ -1,0 +1,52 @@
+W banku istnieje regularne zapotrzebowanie na generowanie raportu prezentującego dane statystyczne dotyczące klientów z różnych grup wiekowych oraz z różnych części Polski korzystających z usług kredytowych.
+
+Twoim zadaniem jest poprawa implementacji istniejącego kodu wchodzącego w skład systemu do generowania raportów, który będzie używany przez bank A oraz bank B.
+
+
+Wymagania:
+
+1. Poprawa implementacji istniejącego kodu generatora raportów:
+Pomijanie danych związanych z kontami zawieszonymi/usuniętymi i kredytami niespełniającymi warunków brzegowych.
+
+2. Optymalizacja LINQ:
+Wydajne pobieranie i filtrowanie danych z bazy przy operowaniu na dużych zbiorach danych i wykonywaniu kodu po stronie serwera bazy danych.
+
+3. Uproszczenie kodu:
+Ograniczenie alokacji nowych instancji obiektów przy pisaniu zapytań LINQ.
+
+4. Wprowadzenie wzorca projektowego Strategii:
+Umożliwienie wprowadzenia własnych danych i metryk do raportu dla innych banków.
+
+
+Wymagane dane do wprowadzenia przez bank:
+
+a) Predykat ograniczający zakres przeszukiwanych danych: Func<Loan, bool> GetPredicate()
+
+b) Wymagane metryki przez bank: IEnumerable<Tuple<string, string, decimal>> GetMetrics(Func<Loan, bool> predicate)
+
+c) Dane statystyczne: IEnumerable<Tuple<decimal, string>> GetStatistics(Func<Loan, bool> predicate)
+
+
+Raport dla banku A:
+
+Średnia stopa oprocentowania dla klientów w przedziałach wiekowych (18-30, 31-50, 51-70) zameldowanych w 3 miastach wojewódzkich (Warszawa, Kraków, Gdańsk) dla kredytów udzielonych w latach 2021-2023. Przykład pojedynczej metryki: {("18-30", "Warszawa", 0.08M)}
+Dane statystyczne zestawiające kwotę kredytów udzielonych w latach 2021-2023 wraz z jego oprocentowaniem.
+
+
+Raport dla banku B:
+
+Średnia stopa oprocentowania w kredytach udzielonych przez pracowników banku z departamentów 3 miast wojewódzkich (Warszawa, Kraków, Gdańsk) w latach 2020, 2021, 2022 wykluczając kredyty oprocentowane powyżej 20%.
+Dane statystyczne zestawiające kwotę kredytów udzielonych w latach 2020-2022 wraz z imieniem i nazwiskiem pracownika, który go udzielił. Przykład pojedynczego rekordu statystyki: {(2000, "Jan Kowalski")}
+
+
+Klasy będące zmapowanymi encjami dostępne w bazach danych FirstDatabase (dla pierwszego banku) i SecondDatabase (dla drugiego) znajdują się w zakładce Documentation. Schematy obu baz danych są takie same.
+
+
+Example unit tests
+FinancialReport firstFinancialStrategy = new FinancialReport(new FirstBankFinancialReportStrategy());
+
+var firstMetrics = firstFinancialStrategy.GetMetrics();
+
+Assert.AreEqual(3, firstMetrics.Count(m => m.Item2 == "Kraków"));
+Assert.AreEqual(3, firstMetrics.Count(m => m.Item2 == "Warszawa"));
+Assert.AreEqual(3, firstMetrics.Count(m => m.Item2 == "Gdańsk"));
